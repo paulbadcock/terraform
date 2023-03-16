@@ -1,0 +1,6 @@
+# terraform
+
+UNIFI_USERNAME env var
+UNIFI_PASSWORD env var
+UNIFI_API
+UNIFI_INSECURE = true
