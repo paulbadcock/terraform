@@ -7,6 +7,12 @@ terraform {
   }
 }
 
+module "vm" {
+  source  = "Terraform-VMWare-Modules/vm/vsphere"
+  version = "3.5.0"
+  # insert the 50 required variables here
+}
+
 provider "unifi" {
   # username = var.username # optionally use UNIFI_USERNAME env var
   # password = var.password # optionally use UNIFI_PASSWORD env var
@@ -68,3 +74,4 @@ resource "unifi_firewall_rule" "plex_deny" {
 
   dst_firewall_group_ids = ["${unifi_firewall_group.plex_port.id}"]
 }
+

@@ -1,0 +1,41 @@
+---
+- name: "Setup.yml"
+  hosts: localhost
+  gather_facts: yes
+  become: yes
+  tasks:
+  - name: Install epel repo (Rocky)
+    dnf:
+      name: "epel-release"
+      state: latest
+    when: ansible_os_family == "Rocky"
+
+  - name: Upgrade all packages (Rocky)
+    dnf:
+      name: "*"
+      state: latest
+    when: ansible_os_family == "Rocky"
+
+  - name: Install packages (Rocky)
+    dnf:
+      name: "{{ packages }}"
+      state: latest
+    vars:
+      packages:
+      - bash-completion
+      - curl
+      - git
+      - rsync
+      - screen
+      - tcpdump
+      - vim
+      - wget
+    when: ansible_os_family == "Rocky"
+
+  - name: Install open-vm-tools (Rocky)
+    dnf:
+      name: open-vm-tools
+      state: latest
+    when:
+      - ansible_os_family == "Rocky"
+      - ansible_virtualization_type == "VMware"
