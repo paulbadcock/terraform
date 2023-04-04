@@ -59,20 +59,20 @@ source "vsphere-iso" "this" {
     disk_thin_provisioned = true
   }
 
-  iso_url = "http://download.rockylinux.org/pub/rocky/9.1/isos/x86_64/Rocky-9.1-x86_64-boot.iso"
-  iso_checksum = "sha256:a36753d0efbea2f54a3dc7bfaa4dba95efe9aa3d6af331d5c5b147ea91240c21"
+  iso_url      = "http://download.rockylinux.org/pub/rocky/9.1/isos/x86_64/Rocky-9.1-x86_64-dvd.iso"
+  iso_checksum = "sha256:69fa71d69a07c9d204da81767719a2af183d113bc87ee5f533f98a194a5a1f8a"
 
   network_adapters {
     network      = var.network_name
     network_card = "vmxnet3"
   }
 
-  floppy_files = [
+  cd_files = [
     "boot/ks.cfg"
   ]
 
   boot_command = [
-    "<up><tab><bs><bs><bs><bs><bs>inst.ks=hd:fd0:/ks.cfg<enter><wait>"
+    "<up><tab><bs><bs><bs><bs><bs>inst.ks=cdrom:/ks.cfg <enter><wait>"
   ]
 }
 
