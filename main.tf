@@ -7,11 +7,11 @@ terraform {
   }
 }
 
-module "vm" {
-  source  = "Terraform-VMWare-Modules/vm/vsphere"
-  version = "3.5.0"
+#module "vm" {
+#  source  = "Terraform-VMWare-Modules/vm/vsphere"
+#  version = "3.5.0"
   # insert the 50 required variables here
-}
+#}
 
 provider "unifi" {
   # username = var.username # optionally use UNIFI_USERNAME env var
@@ -26,18 +26,25 @@ provider "unifi" {
   # site = "foo" or optionally use UNIFI_SITE env var
 }
 
+#provider "vsphere" {
+  #user           = "fill"
+  #password       = "fill"
+  #vsphere_server = "fill"
+
+  # if you have a self-signed cert
+#  allow_unverified_ssl = true
+#}
+
 locals {
-  ips = csvdecode(file("${path.module}/ip_list.csv"))
-  # data structure
-  # ip,note
-  # 192.168.1.10,pc x
+  plex_ips = csvdecode(file("${path.module}/ip_plex.csv"))
+  vsphere_ips = csvdecode(file("${path.module}/ip_vsphere.csv"))
 }
 
 # Create a firewall object of ip's from csv
 resource "unifi_firewall_group" "plex_ips" {
   name = "plex-allowed-ip"
   type = "address-group"
-  members = [ for ip in local.ips : ip.ip ]
+  members = [ for ip in local.plex_ips : ip.ip ]
 }
 
 # Create a port group for the possible plex ports
@@ -57,6 +64,7 @@ resource "unifi_firewall_rule" "plex_allow" {
   rule_index = 2011
 
   protocol = "tcp"
+  logging = true
 
   dst_firewall_group_ids = ["${unifi_firewall_group.plex_port.id}"]
   src_firewall_group_ids = ["${unifi_firewall_group.plex_ips.id}"]
@@ -73,5 +81,25 @@ resource "unifi_firewall_rule" "plex_deny" {
   protocol = "tcp"
 
   dst_firewall_group_ids = ["${unifi_firewall_group.plex_port.id}"]
+}
+
+resource "unifi_firewall_rule" "vmware_deny" {
+  name    = "Drop VM traffic"
+  action  = "reject"
+  ruleset = "WAN_OUT"
+
+  rule_index = 2000
+
+  protocol = "all"
+
+  src_firewall_group_ids = ["${unifi_firewall_group.vsphere.id}"]
+
+}
+
+resource "unifi_firewall_group" "vsphere" {
+  name = "vSphere"
+  type = "address-group"
+
+  members = [ for ip in local.vsphere_ips : ip.ip ]
 }
 
