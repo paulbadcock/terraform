@@ -10,14 +10,29 @@ ip,note
 You need to declare a way into terraform so use the following vars of a local account in unifi
 
 ```shell
-UNIFI_USERNAME env var
-UNIFI_PASSWORD env var
-UNIFI_API
-UNIFI_INSECURE = true
+UNIFI_USERNAME=1
+UNIFI_PASSWORD=2
+UNIFI_API=url
+UNIFI_INSECURE=true
 ```
 
 To apply with the vars required
 
 ```shell
 terraform apply -var="dyndns_hostname=newhost" -var="dyndns_password=token"
+```
+
+# Todo
+
+```text
+unifi_port_profile
+unifi_radius_profile
+unifi_setting_mgmt
+unifi_setting_radius
+unifi_setting_usg
+unifi_site
+unifi_static_route
+unifi_user
+unifi_user_group
+unifi_wlan
 ```
