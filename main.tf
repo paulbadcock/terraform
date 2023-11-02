@@ -103,3 +103,100 @@ resource "unifi_firewall_group" "vsphere" {
   members = [ for ip in local.vsphere_ips : ip.ip ]
 }
 
+resource "unifi_dynamic_dns" "home" {
+  service = "dyndns"
+
+  host_name = var.dyndns_hostname
+
+  server   = "www.duckdns.org"
+  login    = "nouser"
+  password = var.dyndns_password
+}
+
+resource "unifi_network" "default" {
+  name          = "Default"
+  purpose       = "corporate"
+
+  domain_name   = "localdomain"
+  subnet        = "192.168.1.1/24"
+  vlan_id       = 0
+  dhcp_start    = "192.168.1.6"
+  dhcp_stop     = "192.168.1.254"
+  dhcp_enabled  = true
+  dhcp_dns      = var.upstream_dns
+  dhcp_v6_start = "::2"
+  dhcp_v6_stop  = "::7d1"
+  ipv6_pd_start = "::2"
+  ipv6_pd_stop  = "::7d1"
+  ipv6_ra_enable = "true"
+  ipv6_ra_priority = "high"
+  ipv6_ra_valid_lifetime = 0
+}
+
+resource "unifi_network" "upnp" {
+  name    = "upnp"
+  purpose = "corporate"
+
+  subnet       = "192.168.10.1/24"
+  vlan_id      = 10
+  dhcp_start   = "192.168.10.6"
+  dhcp_stop    = "192.168.10.254"
+  dhcp_enabled = true
+  dhcp_dns      = var.upstream_dns
+  dhcp_v6_start = "::2"
+  dhcp_v6_stop  = "::7d1"
+  ipv6_pd_start = "::2"
+  ipv6_pd_stop  = "::7d1"
+  ipv6_ra_enable = "true"
+  ipv6_ra_priority = "high"
+  ipv6_ra_valid_lifetime = 0
+}
+
+resource "unifi_network" "vmware" {
+  name    = "vmware"
+  purpose = "corporate"
+
+  domain_name   = "local"
+  subnet       = "192.168.20.1/24"
+  vlan_id      = 20
+  dhcp_start   = "192.168.20.6"
+  dhcp_stop    = "192.168.20.254"
+  dhcp_enabled = true
+  dhcp_dns      = var.upstream_dns
+  dhcp_v6_start = "::2"
+  dhcp_v6_stop  = "::7d1"
+  ipv6_pd_start = "::2"
+  ipv6_pd_stop  = "::7d1"
+  ipv6_ra_enable = "true"
+  ipv6_ra_priority = "high"
+  ipv6_ra_valid_lifetime = 0
+}
+
+resource "unifi_port_forward" "plex" {
+  name = "Plex"
+  dst_port = 32400
+  fwd_ip = var.core_server
+  fwd_port = 32400
+  port_forward_interface = "both"
+  protocol = "tcp"
+}
+
+resource "unifi_port_forward" "traefik_http" {
+  name = "Traefik HTTP"
+  dst_port = 80
+  fwd_ip = var.core_server
+  fwd_port = 9081
+  port_forward_interface = "both"
+  protocol = "tcp"
+  log = "true"
+}
+
+resource "unifi_port_forward" "traefik_https" {
+  name = "Traefik HTTPS"
+  dst_port = 443
+  fwd_ip = var.core_server
+  fwd_port = 9082
+  port_forward_interface = "both"
+  protocol = "tcp"
+  log = "true"
+}
